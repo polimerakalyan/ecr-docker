@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'us-east-1'                        // Change this
-        AWS_ACCOUNT_ID = '123456789012'                // Change this
-        ECR_REPO_NAME = 'my-nginx-repo'                // Change this
+        AWS_REGION = 'us-east-1'                      
+        AWS_ACCOUNT_ID = '242201276768'                
+        ECR_REPO_NAME = 'my-nginx-repo'                
         IMAGE_TAG = 'latest'
         ECR_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
     }
