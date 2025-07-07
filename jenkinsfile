@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-east-1'                        // Change this
+        AWS_ACCOUNT_ID = '123456789012'                // Change this
+        ECR_REPO_NAME = 'my-nginx-repo'                // Change this
+        IMAGE_TAG = 'latest'
+        ECR_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('AWS ECR Login') {
+            steps {
+                script {
+                    sh """
+                        aws ecr get-login-password --region ${AWS_REGION} | \
+                        docker login --username AWS --password-stdin ${ECR_URI}
+                    """
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                script {
+                    sh """
+                        docker build -t ${ECR_REPO_NAME}:${IMAGE_TAG} .
+                        docker tag ${ECR_REPO_NAME}:${IMAGE_TAG} ${ECR_URI}:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            steps {
+                script {
+                    sh "docker push ${ECR_URI}:${IMAGE_TAG}"
+                }
+            }
+        }
+    }
+}
